@@ -15,11 +15,8 @@ varying vec2 v_dimensions;
 varying float v_eyeDepth;
 #endif
 
-#ifdef RENDER_FOR_PICK
 varying vec4 v_pickColor;
-#else
 varying vec4 v_color;
-#endif
 
 float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
 {
@@ -31,16 +28,10 @@ float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
 
 void main()
 {
-#ifdef RENDER_FOR_PICK
-    vec4 vertexColor = vec4(1.0, 1.0, 1.0, 1.0);
-#else
-    vec4 vertexColor = v_color;
-#endif
-
-    vec4 color = texture2D(u_atlas, v_textureCoordinates) * vertexColor;
+    vec4 color = texture2D(u_atlas, v_textureCoordinates) * v_color;
 
 // Fully transparent parts of the billboard are not pickable.
-#if defined(RENDER_FOR_PICK) || (!defined(OPAQUE) && !defined(TRANSLUCENT))
+#if !defined(OPAQUE) && !defined(TRANSLUCENT)
     if (color.a < 0.005)   // matches 0/255 and 1/255
     {
         discard;
@@ -65,12 +56,7 @@ void main()
     color *= u_highlightColor;
 #endif
 
-#ifdef RENDER_FOR_PICK
-    gl_FragColor = v_pickColor;
-#else
     gl_FragColor = color;
-#endif
-
     czm_writeLogDepth();
 
 #ifdef CLAMP_TO_GROUND
