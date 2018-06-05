@@ -21,6 +21,14 @@ varying vec4 v_pickColor;
 varying vec4 v_color;
 #endif
 
+float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
+{
+    vec2 st = ((v_dimensions.xy * (depthLookupST - adjustedST)) + gl_FragCoord.xy) / czm_viewport.zw;
+    float logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st));
+    vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
+    return eyeCoordinate.z / eyeCoordinate.w;
+}
+
 void main()
 {
 #ifdef RENDER_FOR_PICK
@@ -68,33 +76,18 @@ void main()
 #ifdef CLAMP_TO_GROUND
     if (v_eyeDepth > -2000.0) {
         vec2 adjustedST = v_textureCoordinates - v_textureOffset.xy;
-        adjustedST = adjustedST / (v_textureOffset.z - v_textureOffset.x, v_textureOffset.w - v_textureOffset.y);
+        adjustedST = adjustedST / vec2(v_textureOffset.z - v_textureOffset.x, v_textureOffset.w - v_textureOffset.y);
 
-        vec2 st1 = ((v_dimensions.xy * (v_depthLookupTextureCoordinate1 - adjustedST)) + gl_FragCoord.xy) / czm_viewport.zw;
-        float logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st1));
-        vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
-        float globeDepth1 = eyeCoordinate.z / eyeCoordinate.w;
+        float globeDepth1 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate1);
+        float globeDepth2 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate2);
+        float globeDepth3 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate3);
+
+        float epsilonEyeDepth = v_eyeDepth + czm_epsilon5;
 
         // negative values go into the screen
-        if (globeDepth1 > v_eyeDepth + czm_epsilon5)
+        if (globeDepth1 > epsilonEyeDepth && globeDepth2 > epsilonEyeDepth && globeDepth3 > epsilonEyeDepth)
         {
-            vec2 st2 = ((v_dimensions.xy * (v_depthLookupTextureCoordinate2 - adjustedST)) + gl_FragCoord.xy) / czm_viewport.zw;
-            logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st2));
-            eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
-            float globeDepth2 = eyeCoordinate.z / eyeCoordinate.w;
-
-            if (globeDepth2 > v_eyeDepth + czm_epsilon5)
-            {
-                vec2 st3 = ((v_dimensions.xy * (v_depthLookupTextureCoordinate3 - adjustedST)) + gl_FragCoord.xy) / czm_viewport.zw;
-                logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st3));
-                eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
-                float globeDepth3 = eyeCoordinate.z / eyeCoordinate.w;
-
-                if (globeDepth3 > v_eyeDepth + czm_epsilon5)
-                {
-                    discard;
-                }
-            }
+            discard;
         }
     }
 #endif
