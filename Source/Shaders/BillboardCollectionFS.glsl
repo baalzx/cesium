@@ -5,6 +5,8 @@ uniform vec4 u_highlightColor;
 #endif
 
 varying vec2 v_textureCoordinates;
+varying vec4 v_pickColor;
+varying vec4 v_color;
 
 #ifdef CLAMP_TO_GROUND
 varying vec4 v_textureOffset;
@@ -13,10 +15,6 @@ varying vec2 v_depthLookupTextureCoordinate2;
 varying vec2 v_depthLookupTextureCoordinate3;
 varying vec2 v_dimensions;
 varying float v_eyeDepth;
-#endif
-
-varying vec4 v_pickColor;
-varying vec4 v_color;
 
 float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
 {
@@ -25,6 +23,7 @@ float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
     vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
     return eyeCoordinate.z / eyeCoordinate.w;
 }
+#endif
 
 void main()
 {

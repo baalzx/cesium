@@ -213,7 +213,6 @@ define([
 
         this._shaderClampToGround = false;
         this._compiledShaderClampToGround = false;
-        this._compiledShaderClampToGroundPick = false;
 
         this._propertiesChanged = new Uint32Array(NUMBER_OF_PROPERTIES);
 
