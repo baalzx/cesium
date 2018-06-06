@@ -12,6 +12,7 @@ attribute vec4 pixelOffsetScaleByDistance;                 // near, nearScale, f
 attribute vec3 distanceDisplayConditionAndDisableDepth;    // near, far, disableDepthTestDistance
 #ifdef CLAMP_TO_GROUND
 attribute vec4 textureOffset;                              // the min and max x and y values for the texture coordinates
+attribute vec2 dimensions;
 #endif
 #ifdef VECTOR_TILE
 attribute float a_batchId;
@@ -181,7 +182,7 @@ void main()
         v_depthLookupTextureCoordinate2 = vec2(0.0, 1.0); //top left
         v_depthLookupTextureCoordinate3 = vec2(1.0, 1.0); //top right
     }
-    v_dimensions = imageSize.xy;
+    v_dimensions = dimensions;
 #endif
 
 #ifdef EYE_DISTANCE_TRANSLUCENCY

@@ -159,6 +159,8 @@ define([
         this._imageWidth = undefined;
         this._imageHeight = undefined;
 
+        this._labelDimensions = undefined;
+
         var image = options.image;
         var imageId = options.imageId;
         if (defined(image)) {
@@ -211,7 +213,8 @@ define([
     var DISTANCE_DISPLAY_CONDITION = Billboard.DISTANCE_DISPLAY_CONDITION = 14;
     var DISABLE_DEPTH_DISTANCE = Billboard.DISABLE_DEPTH_DISTANCE = 15;
     Billboard.TEXTURE_OFFSET = 16;
-    Billboard.NUMBER_OF_PROPERTIES = 17;
+    Billboard.DIMENSIONS = 17;
+    Billboard.NUMBER_OF_PROPERTIES = 18;
 
     function makeDirty(billboard, propertyChanged) {
         var billboardCollection = billboard._billboardCollection;
