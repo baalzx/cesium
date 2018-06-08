@@ -14,12 +14,24 @@ varying vec2 v_depthLookupTextureCoordinate1;
 varying vec2 v_depthLookupTextureCoordinate2;
 varying vec2 v_depthLookupTextureCoordinate3;
 varying vec2 v_dimensions;
+varying vec2 v_imageSize;
+varying vec2 v_pixelOffset;
 varying float v_eyeDepth;
 
 float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
 {
-    vec2 st = ((v_dimensions.xy * (depthLookupST - adjustedST)) + gl_FragCoord.xy) / czm_viewport.zw;
+    vec2 a = (v_imageSize.xy * (depthLookupST - adjustedST));
+    vec2 Dd = v_dimensions - v_imageSize;
+
+    vec2 st = ((a - v_pixelOffset - (depthLookupST * Dd)) + gl_FragCoord.xy) / czm_viewport.zw;
+
     float logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st));
+
+    if (logDepthOrDepth == 0.0)
+    {
+        return 0.0;
+    }
+
     vec4 eyeCoordinate = czm_windowToEyeCoordinates(gl_FragCoord.xy, logDepthOrDepth);
     return eyeCoordinate.z / eyeCoordinate.w;
 }
@@ -56,6 +68,7 @@ void main()
 #endif
 
     gl_FragColor = color;
+
     czm_writeLogDepth();
 
 #ifdef CLAMP_TO_GROUND

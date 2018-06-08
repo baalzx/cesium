@@ -25,6 +25,8 @@ varying vec2 v_depthLookupTextureCoordinate1;
 varying vec2 v_depthLookupTextureCoordinate2;
 varying vec2 v_depthLookupTextureCoordinate3;
 varying vec2 v_dimensions;
+varying vec2 v_imageSize;
+varying vec2 v_pixelOffset;
 varying float v_eyeDepth;
 #endif
 
@@ -160,6 +162,8 @@ void main()
     translate.y += (temp - floor(temp)) * SHIFT_LEFT8;
     translate.y -= UPPER_BOUND;
 
+    v_pixelOffset = translate.xy;
+
     temp = compressedAttribute1.x * SHIFT_RIGHT8;
 
     vec2 imageSize = vec2(floor(temp), compressedAttribute2.w);
@@ -182,7 +186,8 @@ void main()
         v_depthLookupTextureCoordinate2 = vec2(0.0, 1.0); //top left
         v_depthLookupTextureCoordinate3 = vec2(1.0, 1.0); //top right
     }
-    v_dimensions = dimensions;
+    v_dimensions = dimensions.xy;
+    v_imageSize = imageSize.xy;
 #endif
 
 #ifdef EYE_DISTANCE_TRANSLUCENCY
