@@ -10,20 +10,25 @@ varying vec4 v_color;
 
 #ifdef CLAMP_TO_GROUND
 varying vec4 v_textureOffset;
-varying vec2 v_depthLookupTextureCoordinate1;
+varying vec2 v_originTextureCoordinate;
 varying vec2 v_depthLookupTextureCoordinate2;
 varying vec2 v_depthLookupTextureCoordinate3;
 varying vec2 v_dimensions;
 varying vec2 v_imageSize;
-varying vec2 v_pixelOffset;
+varying vec2 v_translate;
 varying float v_eyeDepth;
 
 float getGlobeDepth(vec2 adjustedST, vec2 depthLookupST)
 {
     vec2 a = (v_imageSize.xy * (depthLookupST - adjustedST));
     vec2 Dd = v_dimensions - v_imageSize;
+    vec2 px = v_translate.xy;
+    if (px != vec2(0.0))
+    {
+        px += v_dimensions * v_originTextureCoordinate;
+    }
 
-    vec2 st = ((a - v_pixelOffset - (depthLookupST * Dd)) + gl_FragCoord.xy) / czm_viewport.zw;
+    vec2 st = ((a - px + (depthLookupST * Dd)) + gl_FragCoord.xy) / czm_viewport.zw;
 
     float logDepthOrDepth = czm_unpackDepth(texture2D(czm_globeDepthTexture, st));
 
@@ -66,7 +71,6 @@ void main()
 #ifdef VECTOR_TILE
     color *= u_highlightColor;
 #endif
-
     gl_FragColor = color;
 
     czm_writeLogDepth();
@@ -76,7 +80,7 @@ void main()
         vec2 adjustedST = v_textureCoordinates - v_textureOffset.xy;
         adjustedST = adjustedST / vec2(v_textureOffset.z - v_textureOffset.x, v_textureOffset.w - v_textureOffset.y);
 
-        float globeDepth1 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate1);
+        float globeDepth1 = getGlobeDepth(adjustedST, v_originTextureCoordinate);
         float globeDepth2 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate2);
         float globeDepth3 = getGlobeDepth(adjustedST, v_depthLookupTextureCoordinate3);
 

@@ -21,12 +21,12 @@ attribute float a_batchId;
 varying vec2 v_textureCoordinates;
 #ifdef CLAMP_TO_GROUND
 varying vec4 v_textureOffset;
-varying vec2 v_depthLookupTextureCoordinate1;
+varying vec2 v_originTextureCoordinate;
 varying vec2 v_depthLookupTextureCoordinate2;
 varying vec2 v_depthLookupTextureCoordinate3;
 varying vec2 v_dimensions;
 varying vec2 v_imageSize;
-varying vec2 v_pixelOffset;
+varying vec2 v_translate;
 varying float v_eyeDepth;
 #endif
 
@@ -162,7 +162,7 @@ void main()
     translate.y += (temp - floor(temp)) * SHIFT_LEFT8;
     translate.y -= UPPER_BOUND;
 
-    v_pixelOffset = translate.xy;
+    v_translate = translate.xy;
 
     temp = compressedAttribute1.x * SHIFT_RIGHT8;
 
@@ -170,17 +170,17 @@ void main()
 
 #ifdef CLAMP_TO_GROUND
     v_textureOffset = textureOffset;
-    v_depthLookupTextureCoordinate1 = vec2(1.0) - depthOrigin; //the origin
-    if (v_depthLookupTextureCoordinate1.y == 1.0) //vertical origin is top
+    v_originTextureCoordinate = vec2(1.0) - depthOrigin; //the origin
+    if (v_originTextureCoordinate.y == 1.0) //vertical origin is top
     {
         v_depthLookupTextureCoordinate2 = vec2(0.0, 0.0); //bottom left
         v_depthLookupTextureCoordinate3 = vec2(1.0, 0.0); //bottom right
     }
     else
     {
-        if (v_depthLookupTextureCoordinate1.y == 0.0)
+        if (v_originTextureCoordinate.y == 0.0)
         {
-            v_depthLookupTextureCoordinate1.y = 0.1;
+            v_originTextureCoordinate.y = 0.1;
         }
 
         v_depthLookupTextureCoordinate2 = vec2(0.0, 1.0); //top left
